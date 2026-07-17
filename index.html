@@ -27,10 +27,20 @@
         }
         /* カウントダウン用のフチ取り白文字 */
         .countdown-text-stroke {
-            color: white;
-            -webkit-text-stroke: 4px #d97706; /* 枠線の太さと色（アンバー） */
-            text-shadow: 0 4px 12px rgba(0, 0, 0, 0.7);
+            color:#fff;
+            -webkit-text-fill-color:#fff;
+            -webkit-text-stroke:4px #d97706;
+            paint-order:stroke fill;
+            text-shadow:none;
         }
+        .countdown-start{
+            -webkit-text-fill-color:#fff;
+            color:#fff;
+            animation:rainbow 0.8s linear infinite,bounce 0.8s infinite;
+        }
+        @keyframes rainbow{
+0%{-webkit-text-stroke-color:#ff3b30;}20%{-webkit-text-stroke-color:#ff9500;}40%{-webkit-text-stroke-color:#ffd60a;}60%{-webkit-text-stroke-color:#34c759;}80%{-webkit-text-stroke-color:#0a84ff;}100%{-webkit-text-stroke-color:#af52de;}
+}
     </style>
 </head>
 <body class="min-h-screen text-slate-100 flex flex-col justify-between p-3 md:p-6">
@@ -737,8 +747,7 @@
             countdownNumber.innerText = count;
             
             // カウントダウン中から入力ができるように即座にフォーカスを当てる！
-            keepFocus();
-
+            answerInput.disabled = true;
             countdownIntervalId = setInterval(() => {
                 count--;
                 if (count > 0) {
@@ -747,6 +756,9 @@
                     // START! のときは半透明（opacity-60）にして透けさせ、入力の視認性を最大化する
                     countdownNumber.classList.add('opacity-60');
                     countdownNumber.innerText = "START!";
+                    answerInput.disabled = false;
+                    keepFocus();
+                    countdownNumber.classList.add("countdown-start");
                     
                     // STARTの瞬間からタイマーをスタート！
                     startQuestionTimer();
