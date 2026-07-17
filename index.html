@@ -115,7 +115,7 @@
                             <span class="absolute top-1 left-2 text-[8px] text-cyan-400 font-bold">④ ヒント</span>
                             <div class="text-[10px] tracking-[0.1em] font-mono text-cyan-400 font-bold">〇〇</div>
                             <div class="px-2 py-1 bg-amber-600/80 text-white text-[9px] font-bold rounded">
-                                💡 ヒントを見る (0/2回)
+                                💡 ヒントを見る
                             </div>
                         </div>
                     </div>
@@ -164,7 +164,7 @@
                             <span class="text-base">🚀</span>
                             <div>
                                 <h4 class="font-bold text-white mb-0.5">回答後は1.5秒で自動的に次の問題へ！</h4>
-                                <p class="text-slate-400 leading-normal">正誤判定が出た後、手動でボタンを押さなくても1.5秒後にスッと自動で次へ行くため、連打しながら流れるようにプレイできます。</p>
+                                <p class="text-slate-400 leading-normal">正誤判定が出た後（正解を「次の問題に進むとき」に表示する場合）、手動でボタンを押さなくても1.5秒後にスッと自動で次へ行くため、連打しながら流れるようにプレイできます。</p>
                             </div>
                         </div>
                         <div class="bg-slate-800/40 border border-slate-700/30 p-3 rounded-xl flex items-start space-x-2.5">
@@ -272,6 +272,34 @@
                         ⬅️ STEP 2（表示形式）に戻る
                     </button>
                 </div>
+
+                <!-- Step 4: 正解かどうかはいつ表示させる？ -->
+                <div id="step-4" class="space-y-4 hidden animate-fade-in">
+                    <div class="text-center">
+                        <span class="text-xs font-bold text-purple-400 uppercase tracking-widest">STEP 4</span>
+                        <h2 class="text-xl md:text-2xl font-black text-white mt-1">正解かどうかはいつ表示させる？</h2>
+                        <p class="text-xs text-slate-400 mt-1">正誤判定を行うタイミングを選択してね</p>
+                    </div>
+                    <div class="grid grid-cols-1 gap-3">
+                        <button onclick="selectStep4('immediate')" class="py-4 px-5 bg-slate-800/80 hover:bg-slate-700 active:scale-[0.98] transition-all rounded-xl border border-slate-700 hover:border-cyan-500 text-left flex items-center justify-between group">
+                            <div>
+                                <span class="block text-base font-bold text-slate-200 group-hover:text-cyan-400">⚡ 次の問題に進むとき</span>
+                                <span class="text-xs text-slate-400">回答するたびにその場で正解・不正解を表示します</span>
+                            </div>
+                            <span class="text-lg">➔</span>
+                        </button>
+                        <button onclick="selectStep4('end')" class="py-4 px-5 bg-slate-800/80 hover:bg-slate-700 active:scale-[0.98] transition-all rounded-xl border border-slate-700 hover:border-indigo-500 text-left flex items-center justify-between group">
+                            <div>
+                                <span class="block text-base font-bold text-slate-200 group-hover:text-indigo-400">🏁 最後</span>
+                                <span class="text-xs text-slate-400">すべての問題が終わるまで結果を隠します (前後移動ボタン追加)</span>
+                            </div>
+                            <span class="text-lg">➔</span>
+                        </button>
+                    </div>
+                    <button onclick="backToStep(3)" class="w-full py-2 bg-slate-900 hover:bg-slate-800 text-xs text-slate-400 hover:text-slate-200 rounded-lg border border-slate-800 transition-colors">
+                        ⬅️ STEP 3（RTAモード選択）に戻る
+                    </button>
+                </div>
             </div>
 
             <!-- Game Active Screen -->
@@ -328,7 +356,17 @@
                 <div id="hint-section" class="bg-slate-800/20 border border-slate-800 rounded-xl p-3 flex flex-col items-center justify-center space-y-2">
                     <div id="hint-display" class="text-lg tracking-[0.2em] font-mono text-cyan-400 font-bold hidden bg-slate-950/40 px-4 py-1 rounded-lg border border-slate-800/50">〇〇〇</div>
                     <button id="hint-button" onclick="revealHint(); keepFocus();" class="px-4 py-2 bg-amber-600/90 hover:bg-amber-600 active:scale-[0.97] text-white text-xs font-bold rounded-lg shadow-md transition-all">
-                        💡 ヒントを見る (0回使用)
+                        💡 ヒントを見る
+                    </button>
+                </div>
+
+                <!-- Navigation Buttons for "End" Mode (最後を選択した場合の進む・戻るボタン) -->
+                <div id="navigation-buttons-container" class="hidden grid grid-cols-2 gap-2">
+                    <button id="prev-question-button" onclick="prevQuestion()" class="py-2.5 bg-slate-800 hover:bg-slate-700 active:scale-[0.98] text-slate-300 border border-slate-700 font-bold text-xs rounded-xl transition-all">
+                        ⬅️ 前へ戻る
+                    </button>
+                    <button id="next-question-button" onclick="navigateNextQuestion()" class="py-2.5 bg-slate-800 hover:bg-slate-700 active:scale-[0.98] text-slate-300 border border-slate-700 font-bold text-xs rounded-xl transition-all">
+                        進む ➔
                     </button>
                 </div>
 
@@ -471,7 +509,7 @@
             { number: 56, symbol: "Ba", name: "バリウム", kana: "ばりうむ" },
             { number: 57, symbol: "La", name: "ランタン", kana: "らんたん" },
             { number: 58, symbol: "Ce", name: "セリウム", kana: "せりうむ" },
-            { number: 59, symbol: "Pr", name: "プラセオジウム", kana: "ぷらせおじうむ" },
+            { number: 59, symbol: "Pr", name: "プラセオジム", kana: "ぷらせおじむ" },
             { number: 60, symbol: "Nd", name: "ネオジウム", kana: "ねおじうむ" },
             { number: 61, symbol: "Pm", name: "プロメチウム", kana: "ぷろめちうむ" },
             { number: 62, symbol: "Sm", name: "サマリウム", kana: "サマリウム" },
@@ -537,7 +575,8 @@
         let tempSetup = {
             mode: '',       // name-to-symbol, symbol-to-name, number-to-either
             orderType: '',  // order, random
-            isRTA: false    // true, false
+            isRTA: false,   // true, false
+            feedbackTiming: 'immediate' // immediate, end
         };
 
         // ゲーム実行時状態
@@ -545,12 +584,13 @@
             mode: '',
             orderType: '',
             isRTA: false,
+            feedbackTiming: 'immediate',
             currentQuestionIndex: 0,
             questions: [],
             score: 0,
             skipCount: 0,
             hintCount: 0,
-            userHistory: [],
+            userHistory: [], // 各問題の解答状態を保持: { element, status: 'correct'|'incorrect'|'skipped'|'unanswered', userAnswers: [] }
             
             // RTA精密制御用の変数
             totalElapsedTime: 0,    // 確定済みの合計解答時間（ミリ秒）
@@ -572,6 +612,7 @@
         const step1 = document.getElementById('step-1');
         const step2 = document.getElementById('step-2');
         const step3 = document.getElementById('step-3');
+        const step4 = document.getElementById('step-4');
 
         const questionCountEl = document.getElementById('question-count');
         const scoreCountEl = document.getElementById('score-count');
@@ -588,6 +629,10 @@
         const hintDisplay = document.getElementById('hint-display');
         const hintButton = document.getElementById('hint-button');
         
+        const navigationButtonsContainer = document.getElementById('navigation-buttons-container');
+        const prevQuestionBtn = document.getElementById('prev-question-button');
+        const nextQuestionBtn = document.getElementById('next-question-button');
+
         const submitButton = document.getElementById('submit-button');
         const skipButton = document.getElementById('skip-button');
         const feedbackBox = document.getElementById('feedback-box');
@@ -704,6 +749,7 @@
             step1.classList.remove('hidden');
             step2.classList.add('hidden');
             step3.classList.add('hidden');
+            step4.classList.add('hidden');
         }
 
         // タイトル画面へ戻る（完全にホームに戻る）
@@ -735,10 +781,17 @@
             step3.classList.remove('hidden');
         }
 
-        // Step 3: RTAモードにする？ 選択時 ➔ ゲームスタート！
+        // Step 3: RTAモードにする？ 選択時
         function selectStep3(isRTA) {
             tempSetup.isRTA = isRTA;
-            startGame(tempSetup.mode, tempSetup.orderType, isRTA);
+            step3.classList.add('hidden');
+            step4.classList.remove('hidden');
+        }
+
+        // Step 4: 正解表示のタイミング選択時 ➔ ゲームスタート！
+        function selectStep4(feedbackTiming) {
+            tempSetup.feedbackTiming = feedbackTiming;
+            startGame(tempSetup.mode, tempSetup.orderType, tempSetup.isRTA, tempSetup.feedbackTiming);
         }
 
         // ステップ戻る用
@@ -749,18 +802,22 @@
             } else if (stepNum === 2) {
                 step3.classList.add('hidden');
                 step2.classList.remove('hidden');
+            } else if (stepNum === 3) {
+                step4.classList.add('hidden');
+                step3.classList.remove('hidden');
             }
         }
 
         // --- クイズ進行コアロジック ---
 
-        function startGame(mode, orderType, isRTA, customQuestionSet = null) {
+        function startGame(mode, orderType, isRTA, feedbackTiming, customQuestionSet = null) {
             clearAutoNextTimer();
             clearRtaTimer();
 
             gameState.mode = mode;
             gameState.orderType = orderType;
             gameState.isRTA = isRTA;
+            gameState.feedbackTiming = feedbackTiming;
             gameState.currentQuestionIndex = 0;
             gameState.score = 0;
             gameState.skipCount = 0;
@@ -770,19 +827,35 @@
             gameState.totalElapsedTime = 0;
             gameState.isTimerRunning = false;
 
+            let targetElements = [];
             if (customQuestionSet) {
-                gameState.questions = customQuestionSet;
+                targetElements = customQuestionSet;
             } else {
                 if (orderType === 'order') {
-                    gameState.questions = [...elementsData].sort((a, b) => a.number - b.number);
+                    targetElements = [...elementsData].sort((a, b) => a.number - b.number);
                 } else {
-                    gameState.questions = [...elementsData].sort(() => 0.5 - Math.random());
+                    targetElements = [...elementsData].sort(() => 0.5 - Math.random());
                 }
             }
+
+            // userHistory をあらかじめ初期化
+            gameState.questions = targetElements;
+            gameState.userHistory = targetElements.map(el => ({
+                element: el,
+                status: 'unanswered', // correct, incorrect, skipped, unanswered
+                userAnswer: ''
+            }));
 
             setupScreen.classList.add('hidden');
             resultScreen.classList.add('hidden');
             gameScreen.classList.remove('hidden');
+
+            // 最後モードの場合、進む・戻るボタンコンテナを表示
+            if (feedbackTiming === 'end') {
+                navigationButtonsContainer.classList.remove('hidden');
+            } else {
+                navigationButtonsContainer.classList.add('hidden');
+            }
 
             if (isRTA) {
                 rtaTimerPanel.classList.remove('hidden');
@@ -803,15 +876,21 @@
             gameState.score = 0;
             gameState.skipCount = 0;
             gameState.hintCount = 0;
-            gameState.userHistory = [];
             
-            gameState.totalElapsedTime = 0;
-            gameState.isTimerRunning = false;
-            
+            // 履歴の初期化
             if (gameState.orderType === 'random') {
                 gameState.questions = [...gameState.questions].sort(() => 0.5 - Math.random());
             }
 
+            gameState.userHistory = gameState.questions.map(el => ({
+                element: el,
+                status: 'unanswered',
+                userAnswer: ''
+            }));
+            
+            gameState.totalElapsedTime = 0;
+            gameState.isTimerRunning = false;
+            
             if (gameState.isRTA) {
                 rtaTimerDisplay.innerText = "00:00.00";
             }
@@ -821,23 +900,33 @@
 
         // 問題の表示
         function showQuestion() {
-            // 入力中身だけを空文字にし、キーボードは完全にキープ！
-            answerInput.value = ""; 
+            clearAutoNextTimer();
+            
+            // 既にその問題に回答していたら、入力欄に過去の入力値をセット
+            const currentRecord = gameState.userHistory[gameState.currentQuestionIndex];
+            answerInput.value = currentRecord.userAnswer || ""; 
             keepFocus();
 
             feedbackBox.classList.add('hidden');
             feedbackBox.className = "hidden p-3.5 rounded-xl text-center font-bold text-sm";
             submitButton.disabled = false;
-            submitButton.innerText = "回答を送信する！";
             skipButton.classList.remove('hidden');
+
+            // ボタン文言の調整
+            if (gameState.feedbackTiming === 'end') {
+                submitButton.innerText = "回答を登録して進む";
+            } else {
+                submitButton.innerText = "回答を送信する！";
+            }
 
             const currentElement = gameState.questions[gameState.currentQuestionIndex];
             gameState.hintCount = 0;
 
             const total = gameState.questions.length;
             questionCountEl.innerText = `${gameState.currentQuestionIndex + 1}/${total}`;
-            scoreCountEl.innerText = gameState.score;
-            skipCountEl.innerText = gameState.skipCount;
+            
+            // ステータス表示のリアルタイム集計更新
+            updateStatusBar();
             
             const progressPercent = ((gameState.currentQuestionIndex + 1) / total) * 100;
             progressBarEl.style.width = `${progressPercent}%`;
@@ -849,7 +938,6 @@
                 hintSection.classList.remove('hidden');
                 hintDisplay.classList.add('hidden');
                 
-                // 【変更点】現在のお題の文字数上限をセットして、ボタン表示を更新
                 const answerString = currentElement.symbol;
                 updateHintButtonText(answerString.length);
 
@@ -860,7 +948,6 @@
                 hintSection.classList.remove('hidden');
                 hintDisplay.classList.add('hidden');
                 
-                // 【変更点】現在のお題の文字数上限をセットして、ボタン表示を更新
                 const answerString = currentElement.name;
                 updateHintButtonText(answerString.length);
 
@@ -871,23 +958,47 @@
                 hintSection.classList.add('hidden');
             }
 
-            // 新しい問題が表示されたのでタイマーを開始（またはリスタート）
+            // 「最後」モード時の前へ戻る・進むボタン活性/非活性制御
+            if (gameState.feedbackTiming === 'end') {
+                if (gameState.currentQuestionIndex === 0) {
+                    prevQuestionBtn.disabled = true;
+                    prevQuestionBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                } else {
+                    prevQuestionBtn.disabled = false;
+                    prevQuestionBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                }
+
+                // 最後の問題の場合は「結果へ進む」表示を促すように変更可能にする
+                if (gameState.currentQuestionIndex === total - 1) {
+                    nextQuestionBtn.innerText = "結果を確認する 🏁";
+                } else {
+                    nextQuestionBtn.innerText = "進む ➔";
+                }
+            }
+
+            // 新しい問題が表示されたのでタイマーを開始
             startQuestionTimer();
         }
 
-        // ヒントボタンのテキスト更新（文字数上限を設定して上限に達したら無効化）
+        // リアルタイムステータスの計算更新
+        function updateStatusBar() {
+            let correct = 0;
+            let skipped = 0;
+            gameState.userHistory.forEach(h => {
+                if (h.status === 'correct') correct++;
+                if (h.status === 'skipped') skipped++;
+            });
+            scoreCountEl.innerText = correct;
+            skipCountEl.innerText = skipped;
+        }
+
+        // ヒントボタンのテキスト更新
         function updateHintButtonText(totalLen) {
-            if (totalLen !== undefined) {
-                hintButton.innerText = `💡 ヒントを見る (${gameState.hintCount} / ${totalLen}回)`;
-                if (gameState.hintCount >= totalLen) {
-                    hintButton.disabled = true;
-                    hintButton.classList.add('opacity-50', 'cursor-not-allowed');
-                } else {
-                    hintButton.disabled = false;
-                    hintButton.classList.remove('opacity-50', 'cursor-not-allowed');
-                }
+            hintButton.innerText = `💡 ヒントを見る`;
+            if (totalLen !== undefined && gameState.hintCount >= totalLen) {
+                hintButton.disabled = true;
+                hintButton.classList.add('opacity-50', 'cursor-not-allowed');
             } else {
-                hintButton.innerText = `💡 ヒントを見る`;
                 hintButton.disabled = false;
                 hintButton.classList.remove('opacity-50', 'cursor-not-allowed');
             }
@@ -905,7 +1016,6 @@
 
             const totalLen = answerString.length;
             
-            // 安全策：すでに文字数上限に達している場合は何もしない
             if (gameState.hintCount >= totalLen) return;
 
             gameState.hintCount++;
@@ -932,15 +1042,44 @@
             hintDisplay.classList.remove('hidden');
         }
 
+        // 回答判定の共通ロジック
+        function checkCorrectness(inputVal, element) {
+            let isCorrect = false;
+
+            if (gameState.mode === 'name-to-symbol') {
+                isCorrect = inputVal.toLowerCase() === element.symbol.toLowerCase();
+            } else if (gameState.mode === 'symbol-to-name') {
+                const normalizedInput = inputVal.replace(/[\u30a1-\u30f6]/g, function(match) {
+                    return String.fromCharCode(match.charCodeAt(0) - 0x60); // カタカナ ➔ ひらがな
+                });
+                isCorrect = (
+                    inputVal === element.name || 
+                    inputVal === element.kana || 
+                    normalizedInput === element.kana
+                );
+            } else if (gameState.mode === 'number-to-either') {
+                const normalizedInput = inputVal.replace(/[\u30a1-\u30f6]/g, function(match) {
+                    return String.fromCharCode(match.charCodeAt(0) - 0x60);
+                });
+                const isSymbolMatch = inputVal.toLowerCase() === element.symbol.toLowerCase();
+                const isNameMatch = (
+                    inputVal === element.name || 
+                    inputVal === element.kana || 
+                    normalizedInput === element.kana
+                );
+                isCorrect = isSymbolMatch || isNameMatch;
+            }
+            return isCorrect;
+        }
+
         // 回答送信
         function submitAnswer() {
-            // リザルト判定済みなら自動遷移前でも手動で次へいけるようにする
+            // 自動遷移モードでリザルト判定済みなら手動で次へ
             if (submitButton.innerText.includes("次の問題へ")) {
                 nextQuestion();
                 return;
             }
 
-            // 回答ボタン・Enterが押されたので「タイマーを一時停止」して確定時間を保存
             pauseQuestionTimer();
 
             const inputVal = answerInput.value.trim();
@@ -952,48 +1091,34 @@
             }
 
             const currentElement = gameState.questions[gameState.currentQuestionIndex];
-            let isCorrect = false;
+            const isCorrect = checkCorrectness(inputVal, currentElement);
+
+            // 履歴にデータを格納
+            gameState.userHistory[gameState.currentQuestionIndex] = {
+                element: currentElement,
+                status: isCorrect ? 'correct' : 'incorrect',
+                userAnswer: inputVal
+            };
+
+            // 最後モードの場合：即座の正誤表示や自動次へ遷移を行わず次の問題へ
+            if (gameState.feedbackTiming === 'end') {
+                navigateNextQuestion();
+                return;
+            }
+
+            // 以下、即時正解（次の問題に進むとき）モード時の処理
             let correctAnswerMsg = "";
-
             if (gameState.mode === 'name-to-symbol') {
-                isCorrect = inputVal.toLowerCase() === currentElement.symbol.toLowerCase();
                 correctAnswerMsg = `正解は 【 ${currentElement.symbol} 】 だよ！`;
-
             } else if (gameState.mode === 'symbol-to-name') {
-                const normalizedInput = inputVal.replace(/[\u30a1-\u30f6]/g, function(match) {
-                    return String.fromCharCode(match.charCodeAt(0) - 0x60); // カタカナ ➔ ひらがな
-                });
-
-                isCorrect = (
-                    inputVal === currentElement.name || 
-                    inputVal === currentElement.kana || 
-                    normalizedInput === currentElement.kana
-                );
                 correctAnswerMsg = `正解は 【 ${currentElement.name} 】 だよ！`;
-
             } else if (gameState.mode === 'number-to-either') {
-                const normalizedInput = inputVal.replace(/[\u30a1-\u30f6]/g, function(match) {
-                    return String.fromCharCode(match.charCodeAt(0) - 0x60);
-                });
-
-                const isSymbolMatch = inputVal.toLowerCase() === currentElement.symbol.toLowerCase();
-                const isNameMatch = (
-                    inputVal === currentElement.name || 
-                    inputVal === currentElement.kana || 
-                    normalizedInput === currentElement.kana
-                );
-
-                isCorrect = isSymbolMatch || isNameMatch;
                 correctAnswerMsg = `正解は 【 ${currentElement.name} (${currentElement.symbol}) 】 だよ！`;
             }
 
-            // 歴史に記録
             if (isCorrect) {
-                gameState.score++;
-                gameState.userHistory.push({ element: currentElement, status: 'correct' });
                 showFeedback(true, `🎉 正解！お見事！\n${correctAnswerMsg}`);
             } else {
-                gameState.userHistory.push({ element: currentElement, status: 'incorrect' });
                 showFeedback(false, `😢 残念！違うよ...\n${correctAnswerMsg}`);
             }
 
@@ -1002,14 +1127,12 @@
             
             keepFocus();
 
-            // 1.5秒自動タイマーをセット
             clearAutoNextTimer();
             autoNextTimeoutId = setTimeout(nextQuestion, 1500);
         }
 
-        // スキップボタン経由
+        // スキップ処理
         function skipQuestion() {
-            // スキップボタンが押されたので「タイマーを一時停止」
             pauseQuestionTimer();
             skipQuestionLogic();
         }
@@ -1017,8 +1140,17 @@
         // スキップ処理の共通ロジック
         function skipQuestionLogic() {
             const currentElement = gameState.questions[gameState.currentQuestionIndex];
-            gameState.skipCount++;
-            gameState.userHistory.push({ element: currentElement, status: 'skipped' });
+            
+            gameState.userHistory[gameState.currentQuestionIndex] = {
+                element: currentElement,
+                status: 'skipped',
+                userAnswer: ''
+            };
+
+            if (gameState.feedbackTiming === 'end') {
+                navigateNextQuestion();
+                return;
+            }
 
             showFeedback(null, `⏩ スキップしました。\n正解は 【 ${currentElement.name} (${currentElement.symbol}) 】 でした！`);
             skipButton.classList.add('hidden');
@@ -1026,25 +1158,84 @@
             
             keepFocus();
 
-            // 1.5秒自動タイマーをセット
             clearAutoNextTimer();
             autoNextTimeoutId = setTimeout(nextQuestion, 1500);
+        }
+
+        // 「前へ戻る」ボタン押下時
+        function prevQuestion() {
+            if (gameState.currentQuestionIndex > 0) {
+                // 現在までの時間を蓄積
+                pauseQuestionTimer();
+                gameState.currentQuestionIndex--;
+                showQuestion();
+            }
+        }
+
+        // 「進む ➔」ボタン押下時
+        function navigateNextQuestion() {
+            // 現在フォーカスアウトした瞬間にタイマーを止めて蓄積
+            pauseQuestionTimer();
+            
+            // 回答が未判定の場合は、現在の入力値を保存 (空なら未回答のまま)
+            const inputVal = answerInput.value.trim();
+            const currentElement = gameState.questions[gameState.currentQuestionIndex];
+            const currentRecord = gameState.userHistory[gameState.currentQuestionIndex];
+
+            if (currentRecord.status === 'unanswered' || currentRecord.status === 'skipped') {
+                if (inputVal) {
+                    const isCorrect = checkCorrectness(inputVal, currentElement);
+                    gameState.userHistory[gameState.currentQuestionIndex] = {
+                        element: currentElement,
+                        status: isCorrect ? 'correct' : 'incorrect',
+                        userAnswer: inputVal
+                    };
+                } else {
+                    // 何も入っておらず、かつスキップもされていないなら未回答扱い
+                    if (currentRecord.status !== 'skipped') {
+                        gameState.userHistory[gameState.currentQuestionIndex] = {
+                            element: currentElement,
+                            status: 'unanswered',
+                            userAnswer: ''
+                        };
+                    }
+                }
+            } else {
+                // すでに回答済みの場合は入力内容の上書き判定
+                if (inputVal) {
+                    const isCorrect = checkCorrectness(inputVal, currentElement);
+                    gameState.userHistory[gameState.currentQuestionIndex].status = isCorrect ? 'correct' : 'incorrect';
+                    gameState.userHistory[gameState.currentQuestionIndex].userAnswer = inputVal;
+                } else {
+                    gameState.userHistory[gameState.currentQuestionIndex].status = 'unanswered';
+                    gameState.userHistory[gameState.currentQuestionIndex].userAnswer = '';
+                }
+            }
+
+            nextQuestion();
+        }
+
+        // 次の問題へ遷移（またはリザルトへ）
+        function nextQuestion() {
+            clearAutoNextTimer();
+
+            gameState.currentQuestionIndex++;
+            if (gameState.currentQuestionIndex < gameState.questions.length) {
+                showQuestion();
+            } else {
+                showResultScreen();
+            }
         }
 
         // 途中終了
         function forceFinishGame() {
             clearAutoNextTimer();
-            // タイマーを止めてその時点までのタイムを確定
             pauseQuestionTimer();
 
-            // 残りの問題をすべてスキップ扱いで強制埋め
-            for (let i = gameState.currentQuestionIndex; i < gameState.questions.length; i++) {
-                if (gameState.userHistory.length <= i) {
-                    gameState.userHistory.push({
-                        element: gameState.questions[i],
-                        status: 'skipped'
-                    });
-                    gameState.skipCount++;
+            // 未回答の問題をすべてスキップ扱いに書き換える
+            for (let i = 0; i < gameState.questions.length; i++) {
+                if (gameState.userHistory[i].status === 'unanswered') {
+                    gameState.userHistory[i].status = 'skipped';
                 }
             }
             showResultScreen();
@@ -1063,18 +1254,6 @@
             }
         }
 
-        // 次の問題へ
-        function nextQuestion() {
-            clearAutoNextTimer();
-
-            gameState.currentQuestionIndex++;
-            if (gameState.currentQuestionIndex < gameState.questions.length) {
-                showQuestion();
-            } else {
-                showResultScreen();
-            }
-        }
-
         // 結果画面の表示
         function showResultScreen() {
             clearAutoNextTimer();
@@ -1082,7 +1261,6 @@
 
             if (gameState.isRTA) {
                 rtaResultPanel.classList.remove('hidden');
-                // 既に回答時に一時停止して確定している経過時間をそのまま表示
                 finalTimeEl.innerText = formatTime(gameState.totalElapsedTime);
             } else {
                 rtaResultPanel.classList.add('hidden');
@@ -1091,15 +1269,27 @@
             gameScreen.classList.add('hidden');
             resultScreen.classList.remove('hidden');
 
-            const total = gameState.userHistory.length;
-            const correct = gameState.score;
-            const skipped = gameState.skipCount;
-            const incorrect = total - correct - skipped;
+            // 集計計算
+            let correct = 0;
+            let skipped = 0;
+            let incorrect = 0;
 
-            // スキップ除外の実際の回答数
+            gameState.userHistory.forEach(h => {
+                if (h.status === 'correct') {
+                    correct++;
+                } else if (h.status === 'skipped' || h.status === 'unanswered') {
+                    skipped++;
+                } else if (h.status === 'incorrect') {
+                    incorrect++;
+                }
+            });
+
+            // 最終ステータスの反映
+            gameState.score = correct;
+            gameState.skipCount = skipped;
+
             const answeredCount = correct + incorrect;
 
-            // 回答数ゼロのときは正答率を「−」にする
             let rateDisplay = "−";
             if (answeredCount > 0) {
                 rateDisplay = Math.round((correct / answeredCount) * 100) + "%";
@@ -1113,7 +1303,7 @@
             finalSkipCountEl.innerText = skipped;
 
             // 未正解（間違えた ＋ スキップした）問題
-            const uncorrectProblems = gameState.userHistory.filter(h => h.status === 'incorrect' || h.status === 'skipped');
+            const uncorrectProblems = gameState.userHistory.filter(h => h.status === 'incorrect' || h.status === 'skipped' || h.status === 'unanswered');
 
             if (uncorrectProblems.length > 0) {
                 wrongSection.classList.remove('hidden');
@@ -1121,7 +1311,8 @@
                 
                 uncorrectProblems.forEach(item => {
                     const el = item.element;
-                    const statusText = item.status === 'skipped' ? '<span class="text-amber-400">[スキップ]</span>' : '<span class="text-rose-400">[不正解]</span>';
+                    const isSkip = item.status === 'skipped' || item.status === 'unanswered';
+                    const statusText = isSkip ? '<span class="text-amber-400">[未回答]</span>' : '<span class="text-rose-400">[不正解]</span>';
                     const itemDiv = document.createElement('div');
                     itemDiv.className = "flex justify-between items-center py-1 border-b border-slate-800 last:border-0";
                     itemDiv.innerHTML = `
@@ -1131,7 +1322,6 @@
                     wrongListContainer.appendChild(itemDiv);
                 });
 
-                // 「正解してない問題を解く」ボタンを表示
                 retryIncorrectBtn.classList.remove('hidden');
             } else {
                 wrongSection.classList.add('hidden');
@@ -1158,20 +1348,19 @@
             resultCommentEl.innerText = comment;
         }
 
-        // ボタン名完全一致「正解してない問題を解く」の実装
+        // 「正解してない問題を解く」の実装
         function retryIncorrectQuestions() {
             const uncorrectSet = gameState.userHistory
-                .filter(h => h.status === 'incorrect' || h.status === 'skipped')
+                .filter(h => h.status === 'incorrect' || h.status === 'skipped' || h.status === 'unanswered')
                 .map(h => h.element);
 
             if (uncorrectSet.length === 0) return;
 
-            // 未正解問題のサブセットだけでゲームを開始
             const nextQuestions = gameState.orderType === 'order' 
                 ? uncorrectSet.sort((a, b) => a.number - b.number)
                 : uncorrectSet.sort(() => 0.5 - Math.random());
 
-            startGame(gameState.mode, gameState.orderType, gameState.isRTA, nextQuestions);
+            startGame(gameState.mode, gameState.orderType, gameState.isRTA, gameState.feedbackTiming, nextQuestions);
         }
 
         // Enterキーでの送信対応
