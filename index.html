@@ -39,8 +39,15 @@
 
     <!-- Main Container -->
     <main class="flex-grow flex items-center justify-center my-2 md:my-4">
-        <div class="w-full max-w-xl bg-slate-900/90 backdrop-blur-md border border-slate-700/50 rounded-2xl p-4 md:p-6 shadow-2xl overflow-y-auto max-h-[85vh]">
+        <div class="w-full max-w-xl bg-slate-900/90 backdrop-blur-md border border-slate-700/50 rounded-2xl p-4 md:p-6 shadow-2xl overflow-y-auto max-h-[85vh] relative">
             
+            <!-- Countdown Overlay (RTA開始前の3秒カウントダウン用) -->
+            <div id="countdown-overlay" class="hidden absolute inset-0 bg-slate-950/95 rounded-2xl z-50 flex flex-col items-center justify-center space-y-4">
+                <span class="text-xs font-bold text-amber-400 uppercase tracking-widest">RTA MODE STARTING</span>
+                <div id="countdown-number" class="text-8xl font-black text-white animate-bounce">3</div>
+                <p class="text-xs text-slate-400">心の準備はいい？</p>
+            </div>
+
             <!-- Welcome Screen (起動時の最初の画面) -->
             <div id="welcome-screen" class="space-y-6 py-6 text-center">
                 <div class="space-y-2">
@@ -228,9 +235,12 @@
                     <input type="text" id="answer-input" placeholder="ここをタップして入力" class="w-full py-3 px-4 bg-slate-800 border-2 border-slate-750 rounded-xl text-center text-lg text-white font-bold placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all" autocomplete="off" autocapitalize="off" autocorrect="off">
                 </div>
 
-                <!-- Hint Area (Conditional) -->
+                <!-- Hint Area (高さ・位置固定) -->
                 <div id="hint-section" class="bg-slate-800/20 border border-slate-800 rounded-xl p-3 flex flex-col items-center justify-center space-y-2">
-                    <div id="hint-display" class="text-lg tracking-[0.2em] font-mono text-cyan-400 font-bold hidden bg-slate-950/40 px-4 py-1 rounded-lg border border-slate-800/50">〇〇〇</div>
+                    <!-- 高さh-12を常に確保して、ヒント表示の有無でレイアウトがズレるのを完全に防ぎます -->
+                    <div class="h-12 flex items-center justify-center w-full">
+                        <div id="hint-display" class="text-lg tracking-[0.2em] font-mono text-cyan-400 font-bold hidden bg-slate-950/40 px-4 py-1 rounded-lg border border-slate-800/50">〇〇〇</div>
+                    </div>
                     <button id="hint-button" onclick="revealHint(); keepFocus();" class="px-4 py-2 bg-amber-600/90 hover:bg-amber-600 active:scale-[0.97] text-white text-xs font-bold rounded-lg shadow-md transition-all">
                         💡 ヒントを見る
                     </button>
@@ -307,7 +317,11 @@
                 <!-- Actions -->
                 <div class="space-y-2">
                     <button id="retry-incorrect-btn" onclick="retryIncorrectQuestions()" class="w-full py-3.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 active:scale-[0.98] text-white font-extrabold text-sm rounded-xl shadow-lg transition-all hidden">
-                        正解してない問題を解く
+                        正解してない問題だけやり直す
+                    </button>
+                    <!-- 「もう一度同じ設定でプレイ」ボタン -->
+                    <button onclick="playAgainSameSettings()" class="w-full py-3 bg-gradient-to-r from-cyan-500 to-indigo-500 hover:from-cyan-400 hover:to-indigo-400 active:scale-[0.98] text-white font-bold text-sm rounded-xl border border-slate-700 transition-all">
+                        🔁 もう一度同じ設定でプレイ
                     </button>
                     <button onclick="showSetupScreen()" class="w-full py-3 bg-slate-800 hover:bg-slate-700 active:scale-[0.98] text-white font-bold text-sm rounded-xl border border-slate-700 transition-all">
                         ⚙️ モード選択に戻る
@@ -477,6 +491,7 @@
         // タイマー用
         let autoNextTimeoutId = null;
         let rtaIntervalId = null;
+        let countdownIntervalId = null;
 
         // DOMの取得
         const welcomeScreen = document.getElementById('welcome-screen');
@@ -488,6 +503,9 @@
         const step2 = document.getElementById('step-2');
         const step3 = document.getElementById('step-3');
         const step4 = document.getElementById('step-4');
+
+        const countdownOverlay = document.getElementById('countdown-overlay');
+        const countdownNumber = document.getElementById('countdown-number');
 
         const questionCountEl = document.getElementById('question-count');
         const scoreCountEl = document.getElementById('score-count');
@@ -547,6 +565,14 @@
             }
         }
 
+        // カウントダウン用のインターバルをクリア
+        function clearCountdownTimer() {
+            if (countdownIntervalId !== null) {
+                clearInterval(countdownIntervalId);
+                countdownIntervalId = null;
+            }
+        }
+
         // --- RTA用タイマー精密制御 ---
 
         function startQuestionTimer() {
@@ -593,6 +619,8 @@
         function showSetupScreen() {
             clearAutoNextTimer();
             clearRtaTimer();
+            clearCountdownTimer();
+            countdownOverlay.classList.add('hidden');
             
             welcomeScreen.classList.add('hidden');
             resultScreen.classList.add('hidden');
@@ -609,6 +637,8 @@
         function goToHomeDirectly() {
             clearAutoNextTimer();
             clearRtaTimer();
+            clearCountdownTimer();
+            countdownOverlay.classList.add('hidden');
             
             gameScreen.classList.add('hidden');
             resultScreen.classList.add('hidden');
@@ -660,6 +690,8 @@
         function startGame(mode, orderType, isRTA, feedbackTiming, customQuestionSet = null) {
             clearAutoNextTimer();
             clearRtaTimer();
+            clearCountdownTimer();
+            countdownOverlay.classList.add('hidden');
 
             gameState.mode = mode;
             gameState.orderType = orderType;
@@ -709,12 +741,43 @@
                 rtaTimerPanel.classList.add('hidden');
             }
 
-            showQuestion();
+            // RTAモードのときだけ3秒のカウントダウンを行う
+            if (isRTA) {
+                startStartCountdown();
+            } else {
+                showQuestion();
+            }
+        }
+
+        // RTA開始時の3秒カウントダウン機能
+        function startStartCountdown() {
+            countdownOverlay.classList.remove('hidden');
+            let count = 3;
+            countdownNumber.innerText = count;
+
+            countdownIntervalId = setInterval(() => {
+                count--;
+                if (count > 0) {
+                    countdownNumber.innerText = count;
+                } else if (count === 0) {
+                    countdownNumber.innerText = "START!";
+                } else {
+                    clearCountdownTimer();
+                    countdownOverlay.classList.add('hidden');
+                    showQuestion();
+                }
+            }, 1000);
+        }
+
+        function playAgainSameSettings() {
+            startGame(gameState.mode, gameState.orderType, gameState.isRTA, gameState.feedbackTiming);
         }
 
         function resetGame() {
             clearAutoNextTimer();
             clearRtaTimer();
+            clearCountdownTimer();
+            countdownOverlay.classList.add('hidden');
             
             gameState.currentQuestionIndex = 0;
             gameState.score = 0;
@@ -736,9 +799,10 @@
             
             if (gameState.isRTA) {
                 rtaTimerDisplay.innerText = "00:00.00";
+                startStartCountdown();
+            } else {
+                showQuestion();
             }
-
-            showQuestion();
         }
 
         function showQuestion() {
@@ -1085,6 +1149,8 @@
         function showResultScreen() {
             clearAutoNextTimer();
             clearRtaTimer();
+            clearCountdownTimer();
+            countdownOverlay.classList.add('hidden');
 
             if (gameState.isRTA) {
                 rtaResultPanel.classList.remove('hidden');
