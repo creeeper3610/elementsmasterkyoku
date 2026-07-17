@@ -25,6 +25,12 @@
             background: rgba(148, 163, 184, 0.3);
             border-radius: 3px;
         }
+        /* カウントダウン用のフチ取り白文字 */
+        .countdown-text-stroke {
+            color: white;
+            -webkit-text-stroke: 4px #d97706; /* 枠線の太さと色（アンバー） */
+            text-shadow: 0 4px 12px rgba(0, 0, 0, 0.7);
+        }
     </style>
 </head>
 <body class="min-h-screen text-slate-100 flex flex-col justify-between p-3 md:p-6">
@@ -41,14 +47,12 @@
     <main class="flex-grow flex items-center justify-center my-2 md:my-4">
         <div class="w-full max-w-xl bg-slate-900/90 backdrop-blur-md border border-slate-700/50 rounded-2xl p-4 md:p-6 shadow-2xl overflow-y-auto max-h-[85vh] relative">
             
-            <!-- Countdown Overlay (RTA開始前の3秒カウントダウン用) -->
-            <div id="countdown-overlay" class="hidden absolute inset-0 bg-slate-950/95 rounded-2xl z-50 flex flex-col items-center justify-center space-y-4">
-                <span class="text-xs font-bold text-amber-400 uppercase tracking-widest">RTA MODE STARTING</span>
-                <div id="countdown-number" class="text-8xl font-black text-white animate-bounce">3</div>
-                <p class="text-xs text-slate-400">心の準備はいい？</p>
+            <!-- Countdown Overlay (黒背景なし、クリックや入力を邪魔しない pointer-events-none) -->
+            <div id="countdown-overlay" class="hidden absolute inset-0 bg-transparent rounded-2xl z-50 flex flex-col items-center justify-center space-y-2 pointer-events-none">
+                <div id="countdown-number" class="text-8xl font-black countdown-text-stroke animate-bounce transition-opacity duration-205">3</div>
             </div>
 
-            <!-- Welcome Screen (起動時の最初の画面) -->
+            <!-- Welcome Screen -->
             <div id="welcome-screen" class="space-y-6 py-6 text-center">
                 <div class="space-y-2">
                     <span class="text-6xl animate-pulse inline-block">🔮</span>
@@ -67,7 +71,7 @@
                 </div>
             </div>
 
-            <!-- Setup Screen (Step-by-Step) -->
+            <!-- Setup Screen -->
             <div id="setup-screen" class="hidden space-y-6">
                 <!-- Step 1: 何から？ -->
                 <div id="step-1" class="space-y-4">
@@ -104,8 +108,8 @@
                     </button>
                 </div>
 
-                <!-- Step 2: どのように表示？ -->
-                <div id="step-2" class="space-y-4 hidden animate-fade-in">
+                <!-- Step 2 -->
+                <div id="step-2" class="space-y-4 hidden">
                     <div class="text-center">
                         <span class="text-xs font-bold text-indigo-400 uppercase tracking-widest">STEP 2</span>
                         <h2 class="text-xl md:text-2xl font-black text-white mt-1">どのように表示？</h2>
@@ -132,8 +136,8 @@
                     </button>
                 </div>
 
-                <!-- Step 3: RTAモードにする？ -->
-                <div id="step-3" class="space-y-4 hidden animate-fade-in">
+                <!-- Step 3 -->
+                <div id="step-3" class="space-y-4 hidden">
                     <div class="text-center">
                         <span class="text-xs font-bold text-emerald-400 uppercase tracking-widest">STEP 3</span>
                         <h2 class="text-xl md:text-2xl font-black text-white mt-1">RTAモードにする？</h2>
@@ -156,8 +160,8 @@
                     </button>
                 </div>
 
-                <!-- Step 4: 正解かどうかはいつ表示させる？ -->
-                <div id="step-4" class="space-y-4 hidden animate-fade-in">
+                <!-- Step 4 -->
+                <div id="step-4" class="space-y-4 hidden">
                     <div class="text-center">
                         <span class="text-xs font-bold text-purple-400 uppercase tracking-widest">STEP 4</span>
                         <h2 class="text-xl md:text-2xl font-black text-white mt-1">正解かどうかはいつ表示させる？</h2>
@@ -230,14 +234,13 @@
                 <div class="space-y-1">
                     <div class="flex justify-between items-center">
                         <label for="answer-input" class="block text-xs text-slate-300 font-medium">あなたの回答：</label>
-                        <span class="text-[10px] text-slate-500">※空欄 of Enterでスキップできます</span>
+                        <span class="text-[10px] text-slate-500">※空欄 or Enterでスキップできます</span>
                     </div>
                     <input type="text" id="answer-input" placeholder="ここをタップして入力" class="w-full py-3 px-4 bg-slate-800 border-2 border-slate-750 rounded-xl text-center text-lg text-white font-bold placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all" autocomplete="off" autocapitalize="off" autocorrect="off">
                 </div>
 
                 <!-- Hint Area (高さ・位置固定) -->
                 <div id="hint-section" class="bg-slate-800/20 border border-slate-800 rounded-xl p-3 flex flex-col items-center justify-center space-y-2">
-                    <!-- 高さh-12を常に確保して、ヒント表示の有無でレイアウトがズレるのを完全に防ぎます -->
                     <div class="h-12 flex items-center justify-center w-full">
                         <div id="hint-display" class="text-lg tracking-[0.2em] font-mono text-cyan-400 font-bold hidden bg-slate-950/40 px-4 py-1 rounded-lg border border-slate-800/50">〇〇〇</div>
                     </div>
@@ -309,9 +312,7 @@
                     <h3 class="text-sm font-bold text-rose-400 flex items-center space-x-1">
                         <span>❌ 未正解の問題リスト：</span>
                     </h3>
-                    <div id="wrong-list-container" class="max-h-[180px] overflow-y-auto bg-slate-950/50 border border-slate-800 rounded-xl p-3 space-y-2 text-xs text-slate-300">
-                        <!-- ここに間違えた・スキップした問題一覧が並びます -->
-                    </div>
+                    <div id="wrong-list-container" class="max-h-[180px] overflow-y-auto bg-slate-950/50 border border-slate-800 rounded-xl p-3 space-y-2 text-xs text-slate-300"></div>
                 </div>
 
                 <!-- Actions -->
@@ -319,7 +320,6 @@
                     <button id="retry-incorrect-btn" onclick="retryIncorrectQuestions()" class="w-full py-3.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 active:scale-[0.98] text-white font-extrabold text-sm rounded-xl shadow-lg transition-all hidden">
                         正解してない問題だけやり直す
                     </button>
-                    <!-- 「もう一度同じ設定でプレイ」ボタン -->
                     <button onclick="playAgainSameSettings()" class="w-full py-3 bg-gradient-to-r from-cyan-500 to-indigo-500 hover:from-cyan-400 hover:to-indigo-400 active:scale-[0.98] text-white font-bold text-sm rounded-xl border border-slate-700 transition-all">
                         🔁 もう一度同じ設定でプレイ
                     </button>
@@ -339,7 +339,6 @@
 
     <!-- Script Section -->
     <script>
-        // 水素(1)からオガネソン(118)までの全118元素の完全データベース
         const elementsData = [
             { number: 1, symbol: "H", name: "水素", kana: "すいそ" },
             { number: 2, symbol: "He", name: "ヘリウム", kana: "へりうむ" },
@@ -461,15 +460,13 @@
             { number: 118, symbol: "Og", name: "オガネソン", kana: "おがねそん" }
         ];
 
-        // ゲームセットアップの一時選択状態
         let tempSetup = {
-            mode: '',       // name-to-symbol, symbol-to-name, number-to-either
-            orderType: '',  // order, random
-            isRTA: false,   // true, false
-            feedbackTiming: 'immediate' // immediate, end
+            mode: '',
+            orderType: '',
+            isRTA: false,
+            feedbackTiming: 'immediate'
         };
 
-        // ゲーム実行時状態
         let gameState = {
             mode: '',
             orderType: '',
@@ -480,20 +477,17 @@
             score: 0,
             skipCount: 0,
             hintCount: 0,
-            userHistory: [], // 各問題の解答状態を保持
+            userHistory: [],
             
-            // RTA精密制御用
             totalElapsedTime: 0,
             questionStartTime: 0,
             isTimerRunning: false
         };
 
-        // タイマー用
         let autoNextTimeoutId = null;
         let rtaIntervalId = null;
         let countdownIntervalId = null;
 
-        // DOMの取得
         const welcomeScreen = document.getElementById('welcome-screen');
         const setupScreen = document.getElementById('setup-screen');
         const gameScreen = document.getElementById('game-screen');
@@ -544,12 +538,10 @@
         const wrongListContainer = document.getElementById('wrong-list-container');
         const retryIncorrectBtn = document.getElementById('retry-incorrect-btn');
 
-        // フォーカス維持
         function keepFocus() {
             answerInput.focus();
         }
 
-        // 自動遷移用タイマーのクリア
         function clearAutoNextTimer() {
             if (autoNextTimeoutId !== null) {
                 clearTimeout(autoNextTimeoutId);
@@ -557,7 +549,6 @@
             }
         }
 
-        // RTAタイバー描画のインターバルをクリア
         function clearRtaTimer() {
             if (rtaIntervalId !== null) {
                 clearInterval(rtaIntervalId);
@@ -565,15 +556,12 @@
             }
         }
 
-        // カウントダウン用のインターバルをクリア
         function clearCountdownTimer() {
             if (countdownIntervalId !== null) {
                 clearInterval(countdownIntervalId);
                 countdownIntervalId = null;
             }
         }
-
-        // --- RTA用タイマー精密制御 ---
 
         function startQuestionTimer() {
             if (!gameState.isRTA) return;
@@ -593,7 +581,6 @@
             clearRtaTimer();
         }
 
-        // 経過時間更新
         function updateRtaTimer() {
             if (!gameState.isTimerRunning) return;
             const currentElapsed = Date.now() - gameState.questionStartTime;
@@ -614,8 +601,6 @@
             return `${mStr}:${sStr}.${cStr}`;
         }
 
-        // --- 画面遷移コントロール ---
-
         function showSetupScreen() {
             clearAutoNextTimer();
             clearRtaTimer();
@@ -633,7 +618,6 @@
             step4.classList.add('hidden');
         }
 
-        // ホームへ直接戻る
         function goToHomeDirectly() {
             clearAutoNextTimer();
             clearRtaTimer();
@@ -646,8 +630,6 @@
             
             welcomeScreen.classList.remove('hidden');
         }
-
-        // --- セットアップステップ進行 ---
 
         function selectStep1(mode) {
             tempSetup.mode = mode;
@@ -684,8 +666,6 @@
                 step3.classList.remove('hidden');
             }
         }
-
-        // --- クイズ進行コアロジック ---
 
         function startGame(mode, orderType, isRTA, feedbackTiming, customQuestionSet = null) {
             clearAutoNextTimer();
@@ -741,30 +721,38 @@
                 rtaTimerPanel.classList.add('hidden');
             }
 
-            // RTAモードのときだけ3秒のカウントダウンを行う
             if (isRTA) {
+                // カウントダウン開始と同時に「裏側」でゲーム画面をリセット＆1問目をセットしてフォーカス
+                showQuestion(false); // タイマー自動開始はまだしない
                 startStartCountdown();
             } else {
-                showQuestion();
+                showQuestion(true); // 通常時はそのままタイマー開始
             }
         }
 
-        // RTA開始時の3秒カウントダウン機能
         function startStartCountdown() {
             countdownOverlay.classList.remove('hidden');
+            countdownNumber.classList.remove('opacity-60'); // 最初は通常の濃さ
             let count = 3;
             countdownNumber.innerText = count;
+            
+            // カウントダウン中から入力ができるように即座にフォーカスを当てる！
+            keepFocus();
 
             countdownIntervalId = setInterval(() => {
                 count--;
                 if (count > 0) {
                     countdownNumber.innerText = count;
                 } else if (count === 0) {
+                    // START! のときは半透明（opacity-60）にして透けさせ、入力の視認性を最大化する
+                    countdownNumber.classList.add('opacity-60');
                     countdownNumber.innerText = "START!";
+                    
+                    // STARTの瞬間からタイマーをスタート！
+                    startQuestionTimer();
                 } else {
                     clearCountdownTimer();
                     countdownOverlay.classList.add('hidden');
-                    showQuestion();
                 }
             }, 1000);
         }
@@ -799,13 +787,14 @@
             
             if (gameState.isRTA) {
                 rtaTimerDisplay.innerText = "00:00.00";
+                showQuestion(false); // 裏側をリセット
                 startStartCountdown();
             } else {
-                showQuestion();
+                showQuestion(true);
             }
         }
 
-        function showQuestion() {
+        function showQuestion(autoStartTimer = true) {
             clearAutoNextTimer();
             
             const currentRecord = gameState.userHistory[gameState.currentQuestionIndex];
@@ -877,11 +866,12 @@
                 }
             }
 
-            startQuestionTimer();
+            if (autoStartTimer) {
+                startQuestionTimer();
+            }
         }
 
         function updateStatusBar() {
-            // 正解判定が「最後」モードの時は、上部の正解数を「?」にして伏せる
             if (gameState.feedbackTiming === 'end') {
                 scoreCountEl.innerText = "?";
                 let skipped = 0;
@@ -901,7 +891,6 @@
             }
         }
 
-        // ヒントボタンの状態更新
         function updateHintButtonText(totalLen) {
             hintButton.innerText = `💡 ヒントを見る`;
             if (totalLen !== undefined && gameState.hintCount >= totalLen) {
@@ -913,7 +902,6 @@
             }
         }
 
-        // ヒントを開くロジック
         function revealHint() {
             const currentElement = gameState.questions[gameState.currentQuestionIndex];
             
@@ -944,7 +932,6 @@
             hintDisplay.classList.remove('hidden');
         }
 
-        // 回答判定
         function checkCorrectness(inputVal, element) {
             let isCorrect = false;
 
@@ -1059,7 +1046,6 @@
         function prevQuestion() {
             if (gameState.currentQuestionIndex > 0) {
                 pauseQuestionTimer();
-                // 現在入力中の文字があれば記録する（一時保存）
                 const currentElement = gameState.questions[gameState.currentQuestionIndex];
                 const inputVal = answerInput.value.trim();
                 if (gameState.userHistory[gameState.currentQuestionIndex].status === 'unanswered' && inputVal) {
@@ -1204,7 +1190,6 @@
                     const isSkip = item.status === 'skipped' || item.status === 'unanswered';
                     const statusText = isSkip ? '<span class="text-amber-400">[未回答]</span>' : '<span class="text-rose-400">[不正解]</span>';
                     
-                    // ユーザーの回答（空欄の時は「なし」と表示）
                     const userAnswerText = item.userAnswer ? `<span class="text-rose-300 font-medium">"${item.userAnswer}"</span>` : `<span class="text-slate-500 italic">なし</span>`;
 
                     const itemDiv = document.createElement('div');
