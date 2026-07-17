@@ -223,7 +223,7 @@
                 <div class="space-y-1">
                     <div class="flex justify-between items-center">
                         <label for="answer-input" class="block text-xs text-slate-300 font-medium">あなたの回答：</label>
-                        <span class="text-[10px] text-slate-500">※空欄のまま送信/Enterでスキップできます</span>
+                        <span class="text-[10px] text-slate-500">※空欄 of Enterでスキップできます</span>
                     </div>
                     <input type="text" id="answer-input" placeholder="ここをタップして入力" class="w-full py-3 px-4 bg-slate-800 border-2 border-slate-750 rounded-xl text-center text-lg text-white font-bold placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all" autocomplete="off" autocapitalize="off" autocorrect="off">
                 </div>
@@ -299,7 +299,7 @@
                     <h3 class="text-sm font-bold text-rose-400 flex items-center space-x-1">
                         <span>❌ 未正解の問題リスト：</span>
                     </h3>
-                    <div id="wrong-list-container" class="max-h-[160px] overflow-y-auto bg-slate-950/50 border border-slate-800 rounded-xl p-3 space-y-1 text-xs text-slate-300">
+                    <div id="wrong-list-container" class="max-h-[180px] overflow-y-auto bg-slate-950/50 border border-slate-800 rounded-xl p-3 space-y-2 text-xs text-slate-300">
                         <!-- ここに間違えた・スキップした問題一覧が並びます -->
                     </div>
                 </div>
@@ -366,7 +366,7 @@
             { number: 37, symbol: "Rb", name: "ルビジウム", kana: "るびじうむ" },
             { number: 38, symbol: "Sr", name: "ストロンチウム", kana: "すとろんちうむ" },
             { number: 39, symbol: "Y", name: "イットリウム", kana: "いっとりうむ" },
-            { number: 40, symbol: "Zr", name: "じるこにうむ", kana: "じるこにうむ" },
+            { number: 40, symbol: "Zr", name: "ジルコニウム", kana: "じるこにうむ" },
             { number: 41, symbol: "Nb", name: "ニオブ", kana: "におぶ" },
             { number: 42, symbol: "Mo", name: "モリブデン", kana: "もりぶでん" },
             { number: 43, symbol: "Tc", name: "テクネチウム", kana: "てくねちうむ" },
@@ -567,6 +567,7 @@
             clearRtaTimer();
         }
 
+        // 経過時間更新
         function updateRtaTimer() {
             if (!gameState.isTimerRunning) return;
             const currentElapsed = Date.now() - gameState.questionStartTime;
@@ -994,6 +995,15 @@
         function prevQuestion() {
             if (gameState.currentQuestionIndex > 0) {
                 pauseQuestionTimer();
+                // 現在入力中の文字があれば記録する（一時保存）
+                const currentElement = gameState.questions[gameState.currentQuestionIndex];
+                const inputVal = answerInput.value.trim();
+                if (gameState.userHistory[gameState.currentQuestionIndex].status === 'unanswered' && inputVal) {
+                    gameState.userHistory[gameState.currentQuestionIndex].userAnswer = inputVal;
+                } else if (gameState.userHistory[gameState.currentQuestionIndex].status !== 'skipped') {
+                    gameState.userHistory[gameState.currentQuestionIndex].userAnswer = inputVal;
+                }
+                
                 gameState.currentQuestionIndex--;
                 showQuestion();
             }
@@ -1127,11 +1137,18 @@
                     const el = item.element;
                     const isSkip = item.status === 'skipped' || item.status === 'unanswered';
                     const statusText = isSkip ? '<span class="text-amber-400">[未回答]</span>' : '<span class="text-rose-400">[不正解]</span>';
+                    
+                    // ユーザーの回答（空欄の時は「なし」と表示）
+                    const userAnswerText = item.userAnswer ? `<span class="text-rose-300 font-medium">"${item.userAnswer}"</span>` : `<span class="text-slate-500 italic">なし</span>`;
+
                     const itemDiv = document.createElement('div');
-                    itemDiv.className = "flex justify-between items-center py-1 border-b border-slate-800 last:border-0";
+                    itemDiv.className = "flex flex-col sm:flex-row sm:justify-between sm:items-center py-2 border-b border-slate-800 last:border-0 space-y-1 sm:space-y-0";
                     itemDiv.innerHTML = `
-                        <span>No.${el.number} <strong>${el.name}</strong> (${el.symbol})</span>
-                        <span>${statusText}</span>
+                        <div class="flex flex-col">
+                            <span>No.${el.number} <strong>${el.name}</strong> (${el.symbol})</span>
+                            <span class="text-[11px] text-slate-400 mt-0.5">あなたの回答: ${userAnswerText}</span>
+                        </div>
+                        <div class="text-right">${statusText}</div>
                     `;
                     wrongListContainer.appendChild(itemDiv);
                 });
